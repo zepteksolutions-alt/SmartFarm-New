@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="th" data-theme="light">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Coffee Smart Farm — Dashboard</title>
+  <meta name="description" content="ระบบติดตามสภาพดินและสิ่งแวดล้อมฟาร์มกาแฟอัจฉริยะ ด้วย IoT Sensors แบบ Real-time" />
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" type="image/x-icon" href="icon.ico">
+  <link rel="icon" type="image/x-icon" href="icon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="icon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="icon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
+  <meta name="msapplication-TileImage" content="icon.png">
+
+  <!-- Fonts: Inter + Noto Sans Thai -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Theme persistence -->
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('smfarm-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', saved);
+      } catch { }
+    })();
+  </script>
+
+  <!-- Chart.js + dayjs -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="app-layout">
+
+    <!-- ===== SIDEBAR (Desktop/Tablet) ===== -->
+    <nav class="sidebar" id="sidebar">
+      <!-- Brand -->
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-10"/>
+            <path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/>
+            <path d="M14.5 13.5c3.6 0 6.5-2 6.5-5.5-3.5 0-5.5 2.9-5.5 5.5z"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <strong>Coffee Smart Farm</strong>
+          <small>IoT Dashboard</small>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="sidebar-nav">
+        <a href="#/dashboard" class="nav-item active" data-page="dashboard">
+          <span class="nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          </span>
+          <span class="nav-label">Dashboard</span>
+        </a>
+        <a href="#/analytics" class="nav-item" data-page="analytics">
+          <span class="nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+          </span>
+          <span class="nav-label">Analytics</span>
+        </a>
+        <a href="#/data" class="nav-item" data-page="data">
+          <span class="nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>
+          </span>
+          <span class="nav-label">Data Table</span>
+        </a>
+      </div>
+
+      <!-- Footer -->
+      <div class="sidebar-footer">
+        <button class="nav-item" id="themeToggle" type="button" title="สลับโหมดขาว/ดำ">
+          <span class="nav-icon">
+            <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+            <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+              <path d="M21 12.79A9 9 0 0 1 11.21 3 7 7 0 1 0 21 12.79z"/>
+            </svg>
+          </span>
+          <span class="nav-label">สลับธีม</span>
+        </button>
+        <button class="nav-item" id="sidebarCollapseBtn" type="button" title="ย่อ/ขยายแถบข้าง">
+          <span class="nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+          </span>
+          <span class="nav-label">ย่อแถบข้าง</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Sidebar overlay (mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="main-content">
+
+      <!-- Top Bar -->
+      <header class="topbar">
+        <button class="mobile-menu-btn" id="mobileMenuBtn" type="button" aria-label="เปิดเมนู">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <h1 class="topbar-title" id="pageTitle">Dashboard</h1>
+        <div class="topbar-spacer"></div>
+
+        <!-- Battery indicator -->
+        <div class="topbar-battery">
+          <div class="battery-icon">
+            <div class="battery-body">
+              <div class="battery-fill" id="batteryFill"></div>
+              <span class="battery-text" id="bat">–</span>
+            </div>
+            <div class="battery-cap"></div>
+          </div>
+        </div>
+
+        <!-- Updated badge -->
+        <span class="badge" id="updated">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          –
+        </span>
+      </header>
+
+      <!-- Content Area -->
+      <div class="content-area">
+
+        <!-- ===== GLOBAL FILTERS ===== -->
+        <div class="filters" role="region" aria-label="ตัวกรองข้อมูล">
+          <div class="grid cols-4">
+            <div class="field" data-click-focus>
+              <span class="label">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/></svg>
+                Device
+              </span>
+              <select id="deviceFilter" aria-label="เลือกอุปกรณ์"></select>
+            </div>
+            <div class="field" data-click-focus>
+              <span class="label">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="4" y1="21" y2="14"/><line x1="4" x2="4" y1="10" y2="3"/><line x1="12" x2="12" y1="21" y2="12"/><line x1="12" x2="12" y1="8" y2="3"/><line x1="20" x2="20" y1="21" y2="16"/><line x1="20" x2="20" y1="12" y2="3"/><line x1="2" x2="6" y1="14" y2="14"/><line x1="10" x2="14" y1="8" y2="8"/><line x1="18" x2="22" y1="16" y2="16"/></svg>
+                Points
+              </span>
+              <select id="pointFilter">
+                <option value="50">ล่าสุด 50 จุด</option>
+                <option value="100" selected>ล่าสุด 100 จุด</option>
+                <option value="200">ล่าสุด 200 จุด</option>
+              </select>
+            </div>
+            <div class="field" data-click-focus>
+              <span class="label">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                วันที่เริ่มต้น
+              </span>
+              <input type="date" id="startDateFilter" placeholder="ทุกวัน">
+            </div>
+            <div class="field" data-click-focus>
+              <span class="label">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                วันที่สิ้นสุด
+              </span>
+              <input type="date" id="endDateFilter" placeholder="ทุกวัน">
+            </div>
+          </div>
+          <div class="filter-tools">
+            <button class="chip" id="rangeAll" aria-pressed="false" type="button">ทุกวัน</button>
+            <button class="chip" id="rangeToday" aria-pressed="false" type="button">วันนี้</button>
+            <button class="chip" id="range7" aria-pressed="false" type="button">7 วัน</button>
+            <button class="chip" id="range30" aria-pressed="false" type="button">30 วัน</button>
+            <button class="chip export" id="exportCsvBtn" type="button" title="ส่งออกเป็น CSV">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+              Export
+            </button>
+          </div>
+        </div>
+
+        <!-- ===== PAGE: DASHBOARD ===== -->
+        <section class="page active" id="page-dashboard">
+          <!-- KPIs -->
+          <div class="section">
+            <div class="section-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            </div>
+            <h2>KPIs</h2>
+            <div class="rule"></div>
+          </div>
+          <div class="kpis">
+            <!-- Card 1: EC -->
+            <div class="card kpi">
+              <div class="kpi-header">
+                <span class="kpi-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                </span>
+                <span class="name">EC (ppm)</span>
+              </div>
+              <div class="val" id="ec">–</div>
+            </div>
+            <!-- Card 2: MOI -->
+            <div class="card kpi">
+              <div class="kpi-header">
+                <span class="kpi-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg>
+                </span>
+                <span class="name">MOI (%)</span>
+              </div>
+              <div class="val" id="moi">–</div>
+            </div>
+            <!-- Card 3: N -->
+            <div class="card kpi">
+              <div class="kpi-header">
+                <span class="kpi-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.9C15.5 4.9 17 3.5 19 2c1 2 2 4.5 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+                </span>
+                <span class="name">N (ppm)</span>
+              </div>
+              <div class="val" id="n">–</div>
+            </div>
+            <!-- Card 4: pH -->
+            <div class="card kpi">
+              <div class="kpi-header">
+                <span class="kpi-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2"/><path d="M8.5 2h7"/><path d="M7 16.5h10"/></svg>
+                </span>
+                <span class="name">pH</span>
+              </div>
+              <div class="val" id="ph">–</div>
+            </div>
+            <!-- Card 5: P -->
+            <div class="card kpi">
+              <div class="kpi-header">
+                <span class="kpi-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/><path d="M14.5 13.5c3.6 0 6.5-2 6.5-5.5-3.5 0-5.5 2.9-5.5 5.5z"/></svg>
+                </span>
+                <span class="name">P (ppm)</span>
+              </div>
+              <div class="val" id="p">–</div>
+            </div>
+            <!-- Card 6: Battery -->
+            <div class="card kpi battery-kpi">
+              <div class="kpi-header">
+                <span class="kpi-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="10" x="2" y="7" rx="2" ry="2"/><line x1="22" x2="22" y1="11" y2="13"/></svg>
+                </span>
+                <span class="name">Battery</span>
+              </div>
+              <div class="val" id="batteryValue">–</div>
+            </div>
+            <!-- Card 7: K -->
+            <div class="card kpi">
+              <div class="kpi-header">
+                <span class="kpi-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                </span>
+                <span class="name">K (ppm)</span>
+              </div>
+              <div class="val" id="k">–</div>
+            </div>
+            <!-- Card 8: Signal -->
+            <div class="card kpi">
+              <div class="kpi-header">
+                <span class="kpi-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" x2="12.01" y1="20" y2="20"/></svg>
+                </span>
+                <span class="name">Signal</span>
+              </div>
+              <div class="val" style="font-size:18px;"><span id="rssi">–</span> / <span id="snr">–</span></div>
+              <div class="name" id="dev">–</div>
+            </div>
+          </div>
+
+          <!-- Summary -->
+          <div class="section" style="margin-top:18px;">
+            <div class="section-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+            </div>
+            <h2>Summary (Avg / Min / Max)</h2>
+            <div class="rule"></div>
+          </div>
+          <div class="summary" id="summaryGrid"></div>
+        </section>
+
+        <!-- ===== PAGE: ANALYTICS (Chart + AI Advisor) ===== -->
+        <section class="page" id="page-analytics">
+          <!-- Live Chart -->
+          <div class="section">
+            <div class="section-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+            </div>
+            <h2>Live Chart</h2>
+            <div class="rule"></div>
+          </div>
+          <div class="panel"><canvas id="chart"></canvas></div>
+
+          <!-- AI Advisor -->
+          <div class="section" style="margin-top:24px;">
+            <div class="section-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+            </div>
+            <h2>AI Advisor</h2>
+            <div class="field" data-click-focus style="margin-left:12px;">
+              <select id="advisorDevice" aria-label="เลือกอุปกรณ์ (AI Advisor)"></select>
+            </div>
+            <div class="rule"></div>
+          </div>
+          <div id="advisor" class="advice"></div>
+        </section>
+
+        <!-- ===== PAGE: DATA TABLE ===== -->
+        <section class="page" id="page-data">
+          <div class="section">
+            <div class="section-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>
+            </div>
+            <h2>Recent Uplinks</h2>
+            <div class="rule"></div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="min-width:150px;">Time</th>
+                  <th>Device</th>
+                  <th>EC (ppm)</th>
+                  <th>pH</th>
+                  <th>N (ppm)</th>
+                  <th>P (ppm)</th>
+                  <th>K (ppm)</th>
+                  <th>MOI (%)</th>
+                  <th>BAT (%)</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+      </div><!-- /content-area -->
+    </div><!-- /main-content -->
+
+  </div><!-- /app-layout -->
+
+  <!-- ===== BOTTOM BAR (Mobile) ===== -->
+  <nav class="bottom-bar" id="bottomBar">
+    <div class="bottom-bar-inner">
+      <a href="#/dashboard" class="tab-item active" data-page="dashboard">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a href="#/analytics" class="tab-item" data-page="analytics">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+        <span>Analytics</span>
+      </a>
+      <a href="#/data" class="tab-item" data-page="data">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>
+        <span>Data</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Toast stack + live region -->
+  <div id="toastStack" aria-live="polite" aria-atomic="true"></div>
+  <div id="filterAnnouncer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Export Modal -->
+  <div id="exportModal"
+    style="position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.5); z-index:10001;">
+    <div class="card" role="dialog" aria-modal="true" aria-labelledby="exportTitle" style="width:min(520px,92vw);">
+      <h3 id="exportTitle" style="margin:4px 0 14px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+        Export CSV
+      </h3>
+      <div class="grid cols-2" style="margin-bottom:16px;">
+        <div class="field" style="grid-column:1/-1;">
+          <span class="label">Device</span>
+          <select id="exportDevice">
+            <option value="">ทั้งหมด</option>
+          </select>
+        </div>
+        <div class="field">
+          <span class="label">เริ่ม (รวม)</span>
+          <input type="datetime-local" id="exportStart">
+        </div>
+        <div class="field">
+          <span class="label">สิ้นสุด (รวม)</span>
+          <input type="datetime-local" id="exportEnd">
+        </div>
+      </div>
+      <div class="grid cols-2" style="gap:12px; margin-top:16px;">
+        <button class="btn secondary" id="exportCancel" type="button"
+          style="background:var(--surface); color:var(--text); border:1px solid var(--border);">ยกเลิก</button>
+        <button class="btn export" id="exportConfirm" type="button">Export</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
